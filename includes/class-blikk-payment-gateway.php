@@ -45,11 +45,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
         // Logging
         if ($this->debug) {
-            if (version_compare(WOOCOMMERCE_VERSION, '2.1', '>=')) {
-                $this->log = new WC_Logger();
-            } else {
-                $this->log = $woocommerce->logger();
-            }
+            $this->log = new WC_Logger();
         }
     }
 
@@ -111,7 +107,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
                 'type'    => 'checkbox',
                 'label'   => __('Enable logging', 'blikk-payment-gateway'),
                 'default' => 'no',
-                'description' => sprintf(__('Log Blikk events, such as API requests, inside %s', 'blikk-payment-gateway'), '<code>' . WC_Log_Handler_File::get_log_file_path('blikk-payment') . '</code>'),
+                'description' => sprintf(__('Log Blikk events, such as API requests, inside WooCommerce > Status > Logs.', 'blikk-payment-gateway')),
             )
         );
     }
@@ -188,7 +184,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             'customer_name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
             'customer_email' => $order->get_billing_email(),
             'return_url'    => $this->get_return_url($order),
-            'cancel_url'    => $order->get_cancel_order_url_raw(),
+            'cancel_url'    => $order->get_cancel_order_url(),
             'callback_url'  => WC()->api_request_url(strtolower(get_class($this))),
             'description'   => sprintf(__('Order #%s from %s', 'blikk-payment-gateway'), $order->get_order_number(), get_bloginfo('name')),
         );
