@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Blikk Payment Gateway
+ * Plugin Name: Blikk ECom Payments
  * Plugin URI: https://github.com/blikk-software/woo-payment-plugin
  * Description: WooCommerce Payment Plugin for Blikk ECom API
  * Version: 1.0.0
@@ -41,7 +41,7 @@ function blikk_payment_gateway_check_woocommerce() {
  * WooCommerce missing notice
  */
 function blikk_payment_gateway_woocommerce_missing_notice() {
-    echo '<div class="error"><p><strong>Blikk Payment Gateway</strong> requires WooCommerce to be installed and active.</p></div>';
+    echo '<div class="error"><p><strong>Blikk ECom Payments</strong> requires WooCommerce to be installed and active.</p></div>';
 }
 
 /**

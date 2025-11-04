@@ -1,4 +1,4 @@
-=== Blikk Payment Gateway ===
+=== Blikk ECom Payments  ===
 Contributors: blikk-software
 Tags: woocommerce, payment, gateway, blikk, ecommerce
 Requires at least: 5.0
@@ -12,7 +12,7 @@ Accept payments on your WooCommerce store using Blikk ECom API with secure form-
 
 == Description ==
 
-The Blikk Payment Gateway plugin enables WooCommerce store owners to accept payments through the Blikk ECom API. This plugin provides a secure, form-based redirect payment flow that integrates seamlessly with your WooCommerce checkout process.
+The Blikk ECom Payment plugin enables WooCommerce store owners to accept payments through the Blikk ECom API. This plugin provides a secure, form-based redirect payment flow that integrates seamlessly with your WooCommerce checkout process.
 
 **Key Features:**
 
