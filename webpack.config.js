@@ -10,6 +10,8 @@ module.exports = {
         path: path.resolve(__dirname, 'build'),
         filename: '[name].js',
     },
+    // WooCommerce packages are provided by WooCommerce at runtime
+    // and should not be bundled into the output
     externals: {
         '@woocommerce/blocks-registry': ['wc', 'wcBlocksRegistry'],
         '@woocommerce/settings': ['wc', 'wcSettings'],
