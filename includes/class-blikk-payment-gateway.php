@@ -33,7 +33,6 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         $this->title            = $this->get_option('title');
         $this->description      = $this->get_option('description');
         $this->api_url          = $this->get_option('api_url');
-        $this->merchant_id      = $this->get_option('merchant_id');
         $this->api_key          = $this->get_option('api_key');
         $this->test_mode        = 'yes' === $this->get_option('test_mode');
         $this->debug            = 'yes' === $this->get_option('debug');
@@ -81,13 +80,6 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
                 'default'     => '',
                 'desc_tip'    => true,
             ),
-            'merchant_id' => array(
-                'title'       => __('Merchant ID', 'blikk-payment-gateway'),
-                'type'        => 'text',
-                'description' => __('Enter your Blikk Merchant ID.', 'blikk-payment-gateway'),
-                'default'     => '',
-                'desc_tip'    => true,
-            ),
             'api_key' => array(
                 'title'       => __('API Key', 'blikk-payment-gateway'),
                 'type'        => 'password',
@@ -117,7 +109,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
      */
     public function is_available() {
         if ('yes' === $this->enabled) {
-            if (!$this->api_url || !$this->merchant_id || !$this->api_key) {
+            if (!$this->api_url || !$this->api_key) {
                 return false;
             }
             return true;
@@ -156,17 +148,22 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         }
 
         // Store payment URL in order meta
-        $order->update_meta_data('_blikk_payment_url', $payment_data['payment_url']);
-        $order->update_meta_data('_blikk_payment_id', $payment_data['payment_id']);
+        $order->update_meta_data('_blikk_payment_url', $payment_data['scaRedirectUrl']);
+        $order->update_meta_data('_blikk_payment_id', $payment_data['id']);
         $order->save();
 
         // Mark as pending payment
         $order->update_status('pending', __('Awaiting Blikk payment', 'blikk-payment-gateway'));
 
+        // Log the payment processing end
+        if ($this->debug) {
+            $this->log->add('blikk-payment', 'Order redirect URL: '. $order->get_checkout_payment_url(true));
+        }
+
         // Return success and redirect to receipt page
         return array(
             'result'   => 'success',
-            'redirect' => $order->get_checkout_payment_url(true),
+            'redirect' =>  $payment_data['scaRedirectUrl'], //$order->get_checkout_payment_url(true), // TODO: Check if redirect to payment URL directly is better, what is this other stuff
         );
     }
 
@@ -174,19 +171,46 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
      * Create payment request to Blikk API
      */
     private function create_payment_request($order) {
-        $api_url = trailingslashit($this->api_url) . 'payments';
+        $api_url = trailingslashit($this->api_url) . 'v3/payments';
+
+
+        /*
+        {
+            "amount": 1000,
+            "callbackUrl": "https://example.com/callback",
+            "currency": "ISK",
+            "debtorCorpExternalId": "5005891499",
+            "debtorExternalId": "2005891499",
+            "debtorPhoneNo": "+3540002329",
+            "items": [
+                {
+                "description": "",
+                "id": "",
+                "name": "",
+                "quantity": 1,
+                "sku": "",
+                "unitPrice": "",
+                "upc": "",
+                "vat": ""
+                }
+            ],
+            "partnerRedirectUrl": "https://example.com/redirect",
+            "source": "pos-123",
+            "sourceReferenceId": "1234567890"
+        }
+        */
 
         $request_data = array(
-            'merchant_id'   => $this->merchant_id,
-            'order_id'      => $order->get_id(),
+            'sourceReferenceId'      => $order->get_id(),
             'amount'        => $order->get_total(),
             'currency'      => $order->get_currency(),
-            'customer_name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
-            'customer_email' => $order->get_billing_email(),
-            'return_url'    => $this->get_return_url($order),
-            'cancel_url'    => $order->get_cancel_order_url(),
-            'callback_url'  => WC()->api_request_url(strtolower(get_class($this))),
-            'description'   => sprintf(__('Order #%s from %s', 'blikk-payment-gateway'), $order->get_order_number(), get_bloginfo('name')),
+            'callbackUrl'  => WC()->api_request_url(strtolower(get_class($this))),
+            // 'customer_name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),  // TODO: remove
+            // 'customer_email' => $order->get_billing_email(),     // TODO: Check if needed
+            // 'return_url'    => $this->get_return_url($order),    // TODO: Check if needed
+            // 'cancel_url'    => $order->get_cancel_order_url(),   // TODO: Check if needed
+            // TODO: add basket to items
+            // 'description'   => sprintf(__('Order #%s from %s', 'blikk-payment-gateway'), $order->get_order_number(), get_bloginfo('name')),
         );
 
         // Log the request
@@ -199,7 +223,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             'timeout'   => 60,
             'headers'   => array(
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->api_key,
+                'API-Key' => $this->api_key,
             ),
             'body'      => json_encode($request_data),
         ));
@@ -225,7 +249,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
         $response_data = json_decode($response_body, true);
 
-        if (!$response_data || !isset($response_data['payment_url']) || !isset($response_data['payment_id'])) {
+        if (!$response_data || !isset($response_data['scaRedirectUrl'])) {
             return new WP_Error('api_error', __('Invalid response from payment gateway.', 'blikk-payment-gateway'));
         }
 
