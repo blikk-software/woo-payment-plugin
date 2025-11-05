@@ -72,6 +72,23 @@ function blikk_payment_gateway_add_to_woocommerce($gateways) {
 add_action('plugins_loaded', 'blikk_payment_gateway_init');
 
 /**
+ * Register block integration
+ */
+function blikk_payment_gateway_register_blocks_support() {
+    if (class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
+        require_once BLIKK_PAYMENT_GATEWAY_PLUGIN_PATH . 'includes/class-blikk-blocks-support.php';
+        
+        add_action(
+            'woocommerce_blocks_payment_method_type_registration',
+            function($payment_method_registry) {
+                $payment_method_registry->register(new WC_Blikk_Payment_Gateway_Blocks_Support());
+            }
+        );
+    }
+}
+add_action('woocommerce_blocks_loaded', 'blikk_payment_gateway_register_blocks_support');
+
+/**
  * Plugin activation hook
  */
 function blikk_payment_gateway_activate() {
