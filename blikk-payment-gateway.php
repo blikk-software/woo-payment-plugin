@@ -10,6 +10,7 @@
  * Requires PHP: 7.4
  * WC requires at least: 5.0
  * WC tested up to: 8.0
+ * WooCommerce HPOS compatible: yes
  * Text Domain: blikk-payment-gateway
  * Domain Path: /languages
  * License: GPL v2 or later
