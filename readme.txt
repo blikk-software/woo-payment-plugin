@@ -24,6 +24,7 @@ The Blikk ECom Payment plugin enables WooCommerce store owners to accept payment
 * Responsive payment forms
 * Multi-currency support
 * Order management integration
+* WooCommerce Blocks checkout support
 
 **How it works:**
 
@@ -88,6 +89,7 @@ The plugin automatically handles payment status updates through secure API callb
 * Automatic order status updates
 * Test mode support
 * Comprehensive logging
+* WooCommerce Blocks checkout support
 
 == Upgrade Notice ==
 
@@ -102,6 +104,13 @@ For support, please contact Blikk Software or visit our documentation.
 
 * WordPress 5.0 or higher
 * WooCommerce 5.0 or higher
+* WooCommerce Blocks (optional, for block-based checkout)
 * PHP 7.4 or higher
 * Valid SSL certificate (recommended for live payments)
 * Blikk merchant account with API access
+
+== WooCommerce Blocks Support ==
+
+This plugin supports the new WooCommerce block-based checkout experience. The payment method will automatically appear in the block-based checkout when WooCommerce Blocks is active.
+
+**Note:** If you're using the classic shortcode-based checkout, the plugin will work seamlessly without any additional configuration.
