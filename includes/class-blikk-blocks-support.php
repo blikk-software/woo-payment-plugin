@@ -61,7 +61,6 @@ final class WC_Blikk_Payment_Gateway_Blocks_Support extends AbstractPaymentMetho
      * @return array
      */
     public function get_payment_method_script_handles() {
-        $script_path = '/build/blocks/checkout.js';
         $script_asset_path = BLIKK_PAYMENT_GATEWAY_PLUGIN_PATH . 'build/blocks/checkout.asset.php';
         
         $script_asset = file_exists($script_asset_path)
@@ -97,7 +96,7 @@ final class WC_Blikk_Payment_Gateway_Blocks_Support extends AbstractPaymentMetho
         return array(
             'title'       => $this->get_setting('title'),
             'description' => $this->get_setting('description'),
-            'supports'    => array_filter($this->gateway->supports, array($this->gateway, 'supports')),
+            'supports'    => $this->gateway ? $this->gateway->supports : array(),
         );
     }
 
