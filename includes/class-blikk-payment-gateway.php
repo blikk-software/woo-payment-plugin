@@ -19,7 +19,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
      */
     public function __construct() {
         $this->id                 = 'blikk_payment';
-        $this->icon               = '';
+        $this->icon               = ''; // TODO: add Blikk logo
         $this->has_fields         = false;
         $this->method_title       = __('Blikk Payment', 'blikk-payment-gateway');
         $this->method_description = __('Accept payments through Blikk ECom API with secure form-based redirect.', 'blikk-payment-gateway');
