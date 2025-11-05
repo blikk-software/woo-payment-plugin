@@ -94,8 +94,8 @@ final class WC_Blikk_Payment_Gateway_Blocks_Support extends AbstractPaymentMetho
      */
     public function get_payment_method_data() {
         return array(
-            'title'       => $this->get_setting('title'),
-            'description' => $this->get_setting('description'),
+            'title'       => isset($this->settings['title']) ? $this->settings['title'] : '',
+            'description' => isset($this->settings['description']) ? $this->settings['description'] : '',
             'supports'    => $this->gateway ? $this->gateway->supports : array(),
         );
     }
