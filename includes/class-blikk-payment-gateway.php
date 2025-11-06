@@ -201,10 +201,11 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         */
 
         $request_data = array(
-            'sourceReferenceId'      => $order->get_id(),
-            'amount'        => $order->get_total(),
+            'sourceReferenceId'      => (string)$order->get_id(),
+            'amount'        => (int)$order->get_total(),
             'currency'      => $order->get_currency(),
             'callbackUrl'  => WC()->api_request_url(strtolower(get_class($this))),
+            'partnerRedirectUrl' => $this->get_return_url($order),
             // 'customer_name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),  // TODO: remove
             // 'customer_email' => $order->get_billing_email(),     // TODO: Check if needed
             // 'return_url'    => $this->get_return_url($order),    // TODO: Check if needed
