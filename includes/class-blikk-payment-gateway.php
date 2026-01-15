@@ -320,7 +320,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             $this->log->add('blikk-payment', 'Callback received: ' . print_r($callback_data, true));
         }
 
-        if (!$callback_data || !isset($callback_data['order_id']) || !isset($callback_data['status'])) {
+        if (!$callback_data || !isset($callback_data['sourceReferenceId']) || !isset($callback_data['status'])) {
             if ($this->debug) {
                 $this->log->add('blikk-payment', 'Invalid callback data received');
             }
@@ -328,7 +328,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             exit;
         }
 
-        $order_id = intval($callback_data['order_id']);
+        $order_id = intval($callback_data['sourceReferenceId']);
         $order = wc_get_order($order_id);
 
         if (!$order) {
@@ -340,6 +340,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         }
 
         // Verify the callback (you may want to add signature verification here)
+        // make sure payment ID from callback matches the one stored in the order meta
         $payment_id = $order->get_meta('_blikk_payment_id');
         if ($payment_id !== $callback_data['payment_id']) {
             if ($this->debug) {
@@ -348,6 +349,8 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             status_header(400);
             exit;
         }
+
+        // TODO: fetch payment from Blikk ECOM API and use status from there for better security
 
         // Update order based on payment status
         switch ($callback_data['status']) {
@@ -358,9 +361,11 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
             case 'REJECTED':
             case 'CANCELLED':
+            case 'ERROR':
                 $order->update_status('failed', __('Payment failed via Blikk Payment Gateway.', 'blikk-payment-gateway'));
                 break;
 
+            case 'PENDING' :
             case 'SCA_COMPLETE' :
             case 'SCA_REQUIRED' :
                 $order->update_status('on-hold', __('Payment pending via Blikk Payment Gateway.', 'blikk-payment-gateway'));
