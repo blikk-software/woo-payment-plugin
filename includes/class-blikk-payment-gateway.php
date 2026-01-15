@@ -351,18 +351,18 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
         // Update order based on payment status
         switch ($callback_data['status']) {
-            case 'completed':
-            case 'success':
+            case 'SUCCESS':
                 $order->payment_complete($callback_data['payment_id']);
                 $order->add_order_note(__('Payment completed via Blikk Payment Gateway.', 'blikk-payment-gateway'));
                 break;
 
-            case 'failed':
-            case 'cancelled':
+            case 'REJECTED':
+            case 'CANCELLED':
                 $order->update_status('failed', __('Payment failed via Blikk Payment Gateway.', 'blikk-payment-gateway'));
                 break;
 
-            case 'pending':
+            case 'SCA_COMPLETE' :
+            case 'SCA_REQUIRED' :
                 $order->update_status('on-hold', __('Payment pending via Blikk Payment Gateway.', 'blikk-payment-gateway'));
                 break;
 
