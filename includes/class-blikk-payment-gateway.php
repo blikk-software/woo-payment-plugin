@@ -342,7 +342,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         // Verify the callback (you may want to add signature verification here)
         // make sure payment ID from callback matches the one stored in the order meta
         $payment_id = $order->get_meta('_blikk_payment_id');
-        if ($payment_id !== $callback_data['payment_id']) {
+        if ($payment_id !== $callback_data['id']) {
             if ($this->debug) {
                 $this->log->add('blikk-payment', 'Payment ID mismatch for order ' . $order_id);
             }
@@ -370,8 +370,9 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             case 'SCA_REQUIRED' :
                 $order->update_status('on-hold', __('Payment pending via Blikk Payment Gateway.', 'blikk-payment-gateway'));
                 break;
-
+                
             default:
+                $order->update_status('on-hold', __('Unknown payment status: ' . $callback_data['status'], 'blikk-payment-gateway'));
                 if ($this->debug) {
                     $this->log->add('blikk-payment', 'Unknown payment status: ' . $callback_data['status']);
                 }
