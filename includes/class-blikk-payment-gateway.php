@@ -15,11 +15,17 @@ if (!defined('ABSPATH')) {
 class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
     /**
+     * Hard-coded test/staging API key
+     * This is used when test mode is enabled
+     */
+    const TEST_API_KEY = 'test-api-key-here'; // TODO: Replace with actual test API key
+
+    /**
      * Constructor
      */
     public function __construct() {
         $this->id                 = 'blikk_payment';
-        $this->icon               = ''; // TODO: add Blikk logo
+        $this->icon               = BLIKK_PAYMENT_GATEWAY_PLUGIN_URL . 'assets/images/blikk-logo.svg';
         $this->has_fields         = false;
         $this->method_title       = __('Blikk Payment', 'blikk-payment-gateway');
         $this->method_description = __('Accept payments through Blikk ECom API with secure form-based redirect.', 'blikk-payment-gateway');
@@ -32,15 +38,22 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         // Define user set variables
         $this->title            = $this->get_option('title');
         $this->description      = $this->get_option('description');
-        $this->api_url          = $this->get_option('api_url');
-        $this->api_key          = $this->get_option('api_key');
         $this->test_mode        = 'yes' === $this->get_option('test_mode');
         $this->debug            = 'yes' === $this->get_option('debug');
+        
+        // Set API URL and API Key based on test mode
+        $this->api_url = $this->test_mode ? 'https://stage.blikk.tech/ecom' : 'https://api.blikk.tech/ecom';
+        
+        // Use hard-coded test key in test mode, otherwise use user-entered production key
+        $this->api_key = $this->test_mode ? self::TEST_API_KEY : $this->get_option('api_key');
 
         // Actions
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
         add_action('woocommerce_receipt_' . $this->id, array($this, 'receipt_page'));
         add_action('woocommerce_api_' . strtolower(get_class($this)), array($this, 'handle_callback'));
+        
+        // Add admin JavaScript to handle API key field locking
+        add_action('admin_footer', array($this, 'admin_scripts'));
 
         // Logging
         if ($this->debug) {
@@ -73,26 +86,20 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
                 'default'     => __('Pay securely using Blikk Payment Gateway.', 'blikk-payment-gateway'),
                 'desc_tip'    => true,
             ),
-            'api_url' => array(
-                'title'       => __('API URL', 'blikk-payment-gateway'),
-                'type'        => 'url',
-                'description' => __('Enter the Blikk ECom API URL for payment processing.', 'blikk-payment-gateway'),
-                'default'     => '',
-                'desc_tip'    => true,
-            ),
             'api_key' => array(
-                'title'       => __('API Key', 'blikk-payment-gateway'),
+                'title'       => __('API Key (Production)', 'blikk-payment-gateway'),
                 'type'        => 'password',
-                'description' => __('Enter your Blikk API Key for authentication.', 'blikk-payment-gateway'),
+                'description' => __('Enter your Blikk production API Key for authentication. This field is only used when Test Mode is disabled.', 'blikk-payment-gateway'),
                 'default'     => '',
                 'desc_tip'    => true,
+                'class'       => 'blikk-api-key-field',
             ),
             'test_mode' => array(
                 'title'   => __('Test Mode', 'blikk-payment-gateway'),
                 'type'    => 'checkbox',
                 'label'   => __('Enable Test Mode', 'blikk-payment-gateway'),
                 'default' => 'yes',
-                'description' => __('Place the payment gateway in test mode using test API credentials.', 'blikk-payment-gateway'),
+                'description' => __('When enabled, uses staging API (stage.blikk.tech/ecom). When disabled, uses production API (api.blikk.tech/ecom).', 'blikk-payment-gateway'),
             ),
             'debug' => array(
                 'title'   => __('Debug Log', 'blikk-payment-gateway'),
@@ -109,7 +116,9 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
      */
     public function is_available() {
         if ('yes' === $this->enabled) {
-            if (!$this->api_url || !$this->api_key) {
+            // In test mode, API key is always available (hard-coded)
+            // In production mode, check if user has entered an API key
+            if (!$this->test_mode && !$this->get_option('api_key')) {
                 return false;
             }
             return true;
@@ -381,5 +390,60 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
         status_header(200);
         exit;
+    }
+
+    /**
+     * Output admin JavaScript to lock/unlock API key field based on test mode
+     */
+    public function admin_scripts() {
+        // Only output on payment gateway settings page
+        if (!isset($_GET['section']) || $_GET['section'] !== $this->id) {
+            return;
+        }
+        ?>
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            function toggleApiKeyField() {
+                var testModeChecked = $('#woocommerce_<?php echo esc_js($this->id); ?>_test_mode').is(':checked');
+                var apiKeyField = $('#woocommerce_<?php echo esc_js($this->id); ?>_api_key');
+                var apiKeyRow = apiKeyField.closest('tr');
+                
+                if (testModeChecked) {
+                    // Lock the field when test mode is enabled
+                    apiKeyField.prop('disabled', true);
+                    apiKeyField.prop('readonly', true);
+                    apiKeyRow.addClass('blikk-test-mode-active');
+                    
+                    // Add visual indicator
+                    if (!apiKeyRow.find('.blikk-test-mode-notice').length) {
+                        apiKeyRow.find('td').first().append(
+                            '<span class="blikk-test-mode-notice" style="display: block; margin-top: 5px; color: #666; font-style: italic; font-size: 12px;">' +
+                            '<?php echo esc_js(__('Test mode is enabled. Using hard-coded test API key.', 'blikk-payment-gateway')); ?>' +
+                            '</span>'
+                        );
+                    }
+                } else {
+                    // Unlock the field when test mode is disabled
+                    apiKeyField.prop('disabled', false);
+                    apiKeyField.prop('readonly', false);
+                    apiKeyRow.removeClass('blikk-test-mode-active');
+                    apiKeyRow.find('.blikk-test-mode-notice').remove();
+                }
+            }
+            
+            // Run on page load
+            toggleApiKeyField();
+            
+            // Run when test mode checkbox changes
+            $('#woocommerce_<?php echo esc_js($this->id); ?>_test_mode').on('change', toggleApiKeyField);
+        });
+        </script>
+        <style type="text/css">
+        .blikk-test-mode-active input[type="password"] {
+            background-color: #f0f0f1;
+            cursor: not-allowed;
+        }
+        </style>
+        <?php
     }
 }

@@ -97,6 +97,7 @@ final class WC_Blikk_Payment_Gateway_Blocks_Support extends AbstractPaymentMetho
             'title'       => isset($this->settings['title']) ? $this->settings['title'] : '',
             'description' => isset($this->settings['description']) ? $this->settings['description'] : '',
             'supports'    => !is_null($this->gateway) ? $this->gateway->supports : array(),
+            'icon'        => BLIKK_PAYMENT_GATEWAY_PLUGIN_URL . 'assets/images/blikk-logo.svg',
         );
     }
 
