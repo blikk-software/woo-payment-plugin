@@ -32,10 +32,12 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         // Define user set variables
         $this->title            = $this->get_option('title');
         $this->description      = $this->get_option('description');
-        $this->api_url          = $this->get_option('api_url');
-        $this->api_key          = $this->get_option('api_key');
         $this->test_mode        = 'yes' === $this->get_option('test_mode');
+        $this->api_key          = $this->get_option('api_key');
         $this->debug            = 'yes' === $this->get_option('debug');
+        
+        // Set API URL based on test mode
+        $this->api_url = $this->test_mode ? 'https://stage.blikk.tech/ecom' : 'https://api.blikk.tech/ecom';
 
         // Actions
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -73,13 +75,6 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
                 'default'     => __('Pay securely using Blikk Payment Gateway.', 'blikk-payment-gateway'),
                 'desc_tip'    => true,
             ),
-            'api_url' => array(
-                'title'       => __('API URL', 'blikk-payment-gateway'),
-                'type'        => 'url',
-                'description' => __('Enter the Blikk ECom API URL for payment processing.', 'blikk-payment-gateway'),
-                'default'     => '',
-                'desc_tip'    => true,
-            ),
             'api_key' => array(
                 'title'       => __('API Key', 'blikk-payment-gateway'),
                 'type'        => 'password',
@@ -92,7 +87,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
                 'type'    => 'checkbox',
                 'label'   => __('Enable Test Mode', 'blikk-payment-gateway'),
                 'default' => 'yes',
-                'description' => __('Place the payment gateway in test mode using test API credentials.', 'blikk-payment-gateway'),
+                'description' => __('When enabled, uses staging API (stage.blikk.tech/ecom). When disabled, uses production API (api.blikk.tech/ecom).', 'blikk-payment-gateway'),
             ),
             'debug' => array(
                 'title'   => __('Debug Log', 'blikk-payment-gateway'),
@@ -109,7 +104,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
      */
     public function is_available() {
         if ('yes' === $this->enabled) {
-            if (!$this->api_url || !$this->api_key) {
+            if (!$this->api_key) {
                 return false;
             }
             return true;
