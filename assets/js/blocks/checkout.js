@@ -20,6 +20,26 @@ const Content = () => {
  */
 const Label = (props) => {
     const { PaymentMethodLabel } = props.components;
+    const iconUrl = settings.icon || '';
+    
+    if (iconUrl) {
+        return (
+            <img 
+                src={iconUrl} 
+                alt={label}
+                style={{ 
+                    maxHeight: '28px', 
+                    height: 'auto',
+                    width: 'auto',
+                    display: 'block',
+                    alignSelf: 'center',
+                    objectFit: 'contain',
+                    marginLeft: '16px'
+                }}
+            />
+        );
+    }
+    
     return <PaymentMethodLabel text={label} />;
 };
 

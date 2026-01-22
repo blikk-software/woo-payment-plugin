@@ -1,0 +1,99 @@
+name: Build Plugin
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build assets
+        run: npm run build
+
+        
+      - id: pr-metadata
+        uses: actions-ecosystem/action-get-merged-pull-request@v1.0.1
+
+      # PRs can have release labels and these indicate whether a major, minor, release or prelease bump to the version is performed
+      # See step 'bump-semver' for bumping.
+      # Docs - https://github.com/actions-ecosystem/action-release-label
+      - uses: actions-ecosystem/action-release-label@v1
+        id: release-label
+        with:
+          labels: ${{ steps.pr-metadata.outputs.labels }}
+
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+        with:
+          initial_version: v0.0.0
+          semver_only: false
+
+      # Bump semver according to output from step 'release-label' if event is a PR with correct labels,
+      # else bump by prerelease step
+      # Docs - https://github.com/actions-ecosystem/action-bump-semver
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
+        with:
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: ${{ steps.release-label.outputs.level || 'patch' }}
+      
+      - name: Create plugin zip
+        run: |
+          PLUGIN_NAME="blikk-payment-gateway"
+          VERSION="${{ steps.bump-semver.outputs.new_version }}"
+          ZIP_NAME="${PLUGIN_NAME}-${VERSION}.zip"
+          
+          # Create a temporary directory for the plugin
+          mkdir -p ${PLUGIN_NAME}
+          
+          # Copy plugin files (exclude development files)
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='.gitignore' \
+            --exclude='.DS_Store' \
+            --exclude='docker-compose.yaml' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='webpack.config.js' \
+            --exclude='.env*' \
+            --exclude='*.log' \
+            --exclude='.idea' \
+            --exclude='.vscode' \
+            --exclude='README.md' \
+            --exclude='.cursor' \
+            --exclude='assets/js' \
+            --exclude='build/**/*.map' \
+            ./ ${PLUGIN_NAME}/
+          
+          # Create zip file
+          zip -r ${ZIP_NAME} ${PLUGIN_NAME}/
+          
+          # Output zip name for artifact upload
+          echo "zip_name=${ZIP_NAME}" >> $GITHUB_OUTPUT
+          echo "plugin_name=${PLUGIN_NAME}" >> $GITHUB_OUTPUT
+        id: create_zip
+
+      # Create release
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: blikk-payment-gateway-plugin
+          artifacts: ${{ steps.create_zip.outputs.zip_name }}
+          generateReleaseNotes: true
+          tag: ${{ isteps.bump-semver.outputs.new_version }}
