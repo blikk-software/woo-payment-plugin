@@ -27,6 +27,8 @@ jobs:
         
       - id: pr-metadata
         uses: actions-ecosystem/action-get-merged-pull-request@v1.0.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # PRs can have release labels and these indicate whether a major, minor, release or prelease bump to the version is performed
       # See step 'bump-semver' for bumping.
