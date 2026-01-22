@@ -96,4 +96,4 @@ jobs:
           name: blikk-payment-gateway-plugin
           artifacts: ${{ steps.create_zip.outputs.zip_name }}
           generateReleaseNotes: true
-          tag: ${{ isteps.bump-semver.outputs.new_version }}
+          tag: ${{ steps.bump-semver.outputs.new_version }}
