@@ -23,7 +23,6 @@ jobs:
       
       - name: Build assets
         run: npm run build
-
         
       - id: pr-metadata
         uses: actions-ecosystem/action-get-merged-pull-request@v1.0.1
@@ -83,6 +82,8 @@ jobs:
             --exclude='build/**/*.map' \
             ./ ${PLUGIN_NAME}/
           
+          sed -i "s/\$\$\$PLUGIN_VERSION/${VERSION:1}/g" ${PLUGIN_NAME}/blikk-payment-gateway.php
+        
           # Create zip file
           zip -r ${ZIP_NAME} ${PLUGIN_NAME}/
           

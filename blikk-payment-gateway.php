@@ -3,7 +3,7 @@
  * Plugin Name: Blikk ECom Payments
  * Plugin URI: https://github.com/blikk-software/woo-payment-plugin
  * Description: WooCommerce Payment Plugin for Blikk ECom API
- * Version: 1.0.0
+ * Version: $$$PLUGIN_VERSION
  * Author: Blikk Software
  * Requires at least: 5.0
  * Tested up to: 6.3
@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('BLIKK_PAYMENT_GATEWAY_VERSION', '1.0.0');
+define('BLIKK_PAYMENT_GATEWAY_VERSION', '$$$PLUGIN_VERSION');
 define('BLIKK_PAYMENT_GATEWAY_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('BLIKK_PAYMENT_GATEWAY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
