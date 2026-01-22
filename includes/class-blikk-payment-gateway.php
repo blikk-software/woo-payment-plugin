@@ -18,7 +18,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
      * Hard-coded test/staging API key
      * This is used when test mode is enabled
      */
-    const TEST_API_KEY = 'test-api-key-here'; // TODO: Replace with actual test API key
+    const TEST_API_KEY = 'CKEHNZ3P9H';
 
     /**
      * Constructor
