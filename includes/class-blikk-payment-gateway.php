@@ -36,8 +36,9 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         $this->init_settings();
 
         // Define user set variables
-        $this->title            = $this->get_option('title');
-        $this->description      = $this->get_option('description');
+        // Title and description are hardcoded, not editable
+        $this->title            = __('Blikk Tafarlaus Millifærsla', 'blikk-payment-gateway');
+        $this->description      = __('Borgaðu á öruggan og einfaldan hátt með tafarlausri millifærslu beint úr bankaappinu þínu', 'blikk-payment-gateway');
         $this->test_mode        = 'yes' === $this->get_option('test_mode');
         $this->debug            = 'yes' === $this->get_option('debug');
         
@@ -71,20 +72,6 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
                 'type'    => 'checkbox',
                 'label'   => __('Enable Blikk Payment', 'blikk-payment-gateway'),
                 'default' => 'no'
-            ),
-            'title' => array(
-                'title'       => __('Title', 'blikk-payment-gateway'),
-                'type'        => 'text',
-                'description' => __('This controls the title which the user sees during checkout.', 'blikk-payment-gateway'),
-                'default'     => __('Blikk Payment', 'blikk-payment-gateway'),
-                'desc_tip'    => true,
-            ),
-            'description' => array(
-                'title'       => __('Description', 'blikk-payment-gateway'),
-                'type'        => 'textarea',
-                'description' => __('This controls the description which the user sees during checkout.', 'blikk-payment-gateway'),
-                'default'     => __('Pay securely using Blikk Payment Gateway.', 'blikk-payment-gateway'),
-                'desc_tip'    => true,
             ),
             'api_key' => array(
                 'title'       => __('API Key (Production)', 'blikk-payment-gateway'),
