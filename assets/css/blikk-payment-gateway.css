@@ -162,3 +162,131 @@
         margin-bottom: 16px;
     }
 }
+
+/* Phone number field styling */
+.blikk-payment-description {
+    margin-bottom: 16px;
+}
+
+.blikk-phone-field-wrapper {
+    margin-top: 16px;
+}
+
+.blikk-phone-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.blikk-phone-label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e1e1e;
+    margin-bottom: 4px;
+}
+
+.blikk-phone-label .required {
+    color: #d63638;
+}
+
+.blikk-phone-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.5;
+    background-color: #fff;
+    color: #1e1e1e;
+    transition: border-color 0.2s ease;
+}
+
+.blikk-phone-input:focus {
+    outline: none;
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.blikk-phone-input::placeholder {
+    color: #757575;
+}
+
+/* Classic checkout phone field styling */
+#blikk-payment-phone-field {
+    margin-top: 16px;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+#blikk-payment-phone-field .form-row {
+    margin-bottom: 16px;
+}
+
+#blikk-payment-phone-field label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e1e1e;
+    margin-bottom: 8px;
+}
+
+#blikk-payment-phone-field input[type="tel"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.5;
+    background-color: #fff;
+    color: #1e1e1e;
+}
+
+#blikk-payment-phone-field input[type="tel"]:focus {
+    outline: none;
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+/* Blocks checkout phone field styling */
+.wc-block-components-payment-method .blikk-phone-field-wrapper {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.wc-block-components-payment-method .blikk-phone-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Mobile responsiveness for phone field */
+@media screen and (max-width: 768px) {
+    .blikk-phone-input-container {
+        gap: 6px;
+    }
+    
+    .blikk-phone-label {
+        font-size: 13px;
+    }
+    
+    .blikk-phone-input {
+        padding: 10px 14px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    #blikk-payment-phone-field .form-row {
+        margin-bottom: 14px;
+    }
+    
+    #blikk-payment-phone-field input[type="tel"] {
+        padding: 10px 14px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .wc-block-components-payment-method .blikk-phone-field-wrapper {
+        margin-top: 14px;
+        padding-top: 14px;
+    }
+}

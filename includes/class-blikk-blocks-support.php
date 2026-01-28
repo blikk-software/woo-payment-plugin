@@ -111,8 +111,17 @@ final class WC_Blikk_Payment_Gateway_Blocks_Support extends AbstractPaymentMetho
         if ($this->name !== $context->payment_method) {
             return;
         }
-
-        // Additional processing can be added here if needed
-        // For example, adding custom data to the order
+        
+        // Get phone number from payment data
+        $phone = isset($context->payment_data['blikk_phone']) ? sanitize_text_field($context->payment_data['blikk_phone']) : '';
+        
+        if ($phone) {
+            // Store phone number in order meta for use in process_payment
+            $order = $context->order;
+            if ($order) {
+                $order->update_meta_data('_blikk_phone', $phone);
+                $order->save();
+            }
+        }
     }
 }

@@ -26,7 +26,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
     public function __construct() {
         $this->id                 = 'blikk_payment';
         $this->icon               = BLIKK_PAYMENT_GATEWAY_PLUGIN_URL . 'assets/images/blikk-logo.svg';
-        $this->has_fields         = false;
+        $this->has_fields         = true;
         $this->method_title       = __('Blikk Payment', 'blikk-payment-gateway');
         $this->method_description = __('Accept payments through Blikk ECom API with secure form-based redirect.', 'blikk-payment-gateway');
         $this->supports           = array('products');
@@ -132,8 +132,28 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             $this->log->add('blikk-payment', 'Starting payment process for order #' . $order_id);
         }
 
+        // Get phone number from POST data, order meta (blocks checkout), or order address
+        $phone = isset($_POST['blikk_phone']) ? sanitize_text_field($_POST['blikk_phone']) : '';
+        if (empty($phone)) {
+            // Check order meta (set by blocks checkout)
+            $phone = $order->get_meta('_blikk_phone');
+        }
+        if (empty($phone)) {
+            // Fallback to billing or shipping phone
+            $phone = $order->get_billing_phone();
+            if (empty($phone)) {
+                $phone = $order->get_shipping_phone();
+            }
+        }
+
+        // Store phone number in order meta if not already stored
+        if ($phone && !$order->get_meta('_blikk_phone')) {
+            $order->update_meta_data('_blikk_phone', $phone);
+            $order->save();
+        }
+
         // Create payment request to Blikk API
-        $payment_data = $this->create_payment_request($order);
+        $payment_data = $this->create_payment_request($order, $phone);
 
         if (is_wp_error($payment_data)) {
             wc_add_notice($payment_data->get_error_message(), 'error');
@@ -166,7 +186,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
     /**
      * Create payment request to Blikk API
      */
-    private function create_payment_request($order) {
+    private function create_payment_request($order, $phone = '') {
         $api_url = trailingslashit($this->api_url) . 'v3/payments';
 
 
@@ -202,13 +222,12 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
             'currency'      => $order->get_currency(),
             'callbackUrl'  => WC()->api_request_url(strtolower(get_class($this))),
             'partnerRedirectUrl' => $this->get_return_url($order),
-            // 'customer_name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),  // TODO: remove
-            // 'customer_email' => $order->get_billing_email(),     // TODO: Check if needed
-            // 'return_url'    => $this->get_return_url($order),    // TODO: Check if needed
-            // 'cancel_url'    => $order->get_cancel_order_url(),   // TODO: Check if needed
-            // TODO: add basket to items
-            // 'description'   => sprintf(__('Order #%s from %s', 'blikk-payment-gateway'), $order->get_order_number(), get_bloginfo('name')),
         );
+        
+        // Add phone number if available
+        if (!empty($phone)) {
+            $request_data['debtorPhoneNo'] = $phone;
+        }
 
         // Log the request
         if ($this->debug) {
@@ -377,6 +396,50 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
         status_header(200);
         exit;
+    }
+
+    /**
+     * Output payment fields on checkout page (classic checkout)
+     */
+    public function payment_fields() {
+        // Get phone number from billing or shipping address
+        $billing_phone = WC()->checkout()->get_value('billing_phone');
+        $shipping_phone = WC()->checkout()->get_value('shipping_phone');
+        $phone = $billing_phone ? $billing_phone : $shipping_phone;
+        
+        if ($this->description) {
+            echo wpautop(wptexturize($this->description));
+        }
+        
+        ?>
+        <fieldset id="blikk-payment-phone-field" class="wc-payment-form" style="background:transparent;">
+            <p class="form-row form-row-wide">
+                <label for="blikk_phone"><?php echo esc_html__('Phone Number', 'blikk-payment-gateway'); ?> <span class="required">*</span></label>
+                <input type="tel" class="input-text" name="blikk_phone" id="blikk_phone" value="<?php echo esc_attr($phone); ?>" placeholder="<?php echo esc_attr__('Enter your phone number', 'blikk-payment-gateway'); ?>" />
+            </p>
+        </fieldset>
+        <?php
+    }
+
+    /**
+     * Validate payment fields
+     */
+    public function validate_fields() {
+        // Skip validation for blocks checkout (handled in JavaScript via REST API)
+        // Blocks checkout uses REST API, classic checkout uses form POST
+        if (defined('REST_REQUEST') && REST_REQUEST) {
+            return true;
+        }
+        
+        // Only validate for classic checkout
+        $phone = isset($_POST['blikk_phone']) ? sanitize_text_field($_POST['blikk_phone']) : '';
+        
+        if (empty($phone)) {
+            wc_add_notice(__('Phone number is required for Blikk payment.', 'blikk-payment-gateway'), 'error');
+            return false;
+        }
+        
+        return true;
     }
 
     /**
