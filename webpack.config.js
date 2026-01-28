@@ -15,5 +15,10 @@ module.exports = {
     externals: {
         '@woocommerce/blocks-registry': ['wc', 'wcBlocksRegistry'],
         '@woocommerce/settings': ['wc', 'wcSettings'],
+        '@woocommerce/block-data': ['wc', 'wcBlocksData'],
+        '@wordpress/element': ['wp', 'element'],
+        '@wordpress/data': ['wp', 'data'],
+        '@wordpress/i18n': ['wp', 'i18n'],
+        '@wordpress/html-entities': ['wp', 'htmlEntities'],
     },
 };
