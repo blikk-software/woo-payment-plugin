@@ -196,12 +196,19 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
         }
         */
 
+        // Get return URL and ensure it's absolute
+        $return_url = $this->get_return_url($order);
+        // If it's a relative URL, convert to absolute
+        if (!preg_match('/^https?:\/\//', $return_url)) {
+            $return_url = home_url($return_url);
+        }
+
         $request_data = array(
             'sourceReferenceId'      => (string)$order->get_id(),
             'amount'        => (int)$order->get_total(),
             'currency'      => $order->get_currency(),
             'callbackUrl'  => WC()->api_request_url(strtolower(get_class($this))),
-            'partnerRedirectUrl' => $this->get_return_url($order),
+            'partnerRedirectUrl' => $return_url,
             // 'customer_name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),  // TODO: remove
             // 'customer_email' => $order->get_billing_email(),     // TODO: Check if needed
             // 'return_url'    => $this->get_return_url($order),    // TODO: Check if needed
