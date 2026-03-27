@@ -37,7 +37,7 @@ class WC_Blikk_Payment_Gateway extends WC_Payment_Gateway {
 
         // Define user set variables
         // Title and description are hardcoded, not editable
-        $this->title            = __('Blikk Tafarlaus Millifærsla', 'blikk-payment-gateway');
+        $this->title            = __('Blikk', 'blikk-payment-gateway');
         $this->description      = __('Borgaðu á öruggan og einfaldan hátt með tafarlausri millifærslu beint úr bankaappinu þínu', 'blikk-payment-gateway');
         $this->test_mode        = 'yes' === $this->get_option('test_mode');
         $this->debug            = 'yes' === $this->get_option('debug');
