@@ -33,8 +33,7 @@ const Label = (props) => {
                     width: 'auto',
                     display: 'block',
                     alignSelf: 'center',
-                    objectFit: 'contain',
-                    marginLeft: '16px'
+                    objectFit: 'contain'
                 }}
             />
         );
