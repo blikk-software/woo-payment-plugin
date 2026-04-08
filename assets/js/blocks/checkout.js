@@ -31,7 +31,7 @@ const Label = (props) => {
                     maxHeight: '28px', 
                     height: 'auto',
                     width: 'auto',
-                    display: 'block',
+                    display: 'inline-block',
                     alignSelf: 'center',
                     objectFit: 'contain'
                 }}
@@ -47,7 +47,7 @@ const Label = (props) => {
  */
 const BlikkPaymentMethod = {
     name: 'blikk_payment',
-    label: <Label />,
+    label: Label,
     content: <Content />,
     edit: <Content />,
     canMakePayment: () => true,

@@ -59,21 +59,10 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Payment method icon styling for classic checkout */
+/* Hide title text in classic checkout — icon already contains the brand name */
 .woocommerce-checkout #payment .payment_method_blikk_payment label,
 .woocommerce #payment .payment_method_blikk_payment label {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 44px;
-    padding: 10px 0;
-    line-height: 1.5;
-}
-
-/* Hide the title text in classic checkout, show only logo */
-.woocommerce-checkout #payment .payment_method_blikk_payment label .woocommerce-PaymentMethod-label-text,
-.woocommerce #payment .payment_method_blikk_payment label .woocommerce-PaymentMethod-label-text {
-    display: none;
+    font-size: 0;
 }
 
 .woocommerce-checkout #payment .payment_method_blikk_payment img,
@@ -81,34 +70,6 @@
     max-height: 28px;
     height: auto;
     width: auto;
-    display: block;
-    margin-left: 16px;
-    object-fit: contain;
-    vertical-align: middle;
-}
-
-/* Better alignment for radio button and logo */
-.woocommerce-checkout #payment .payment_method_blikk_payment input[type="radio"],
-.woocommerce #payment .payment_method_blikk_payment input[type="radio"] {
-    margin-top: 0;
-    align-self: center;
-}
-
-/* Payment method icon styling for blocks checkout */
-.wc-block-components-payment-method-label {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 44px;
-    padding: 10px 0;
-    line-height: 1.5;
-}
-
-.wc-block-components-payment-method-label img {
-    max-height: 28px;
-    height: auto;
-    width: auto;
-    display: block;
     object-fit: contain;
     vertical-align: middle;
 }
@@ -122,16 +83,9 @@
 
 /* Mobile responsiveness */
 @media screen and (max-width: 768px) {
-    .woocommerce-checkout #payment .payment_method_blikk_payment label,
-    .woocommerce #payment .payment_method_blikk_payment label {
-        padding: 14px 0;
-        min-height: 52px;
-    }
-    
     .woocommerce-checkout #payment .payment_method_blikk_payment img,
     .woocommerce #payment .payment_method_blikk_payment img {
         max-height: 24px;
-        margin-left: 12px;
     }
     
     .wc-block-components-payment-method-label {
