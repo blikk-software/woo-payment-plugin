@@ -59,7 +59,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Payment method icon styling for classic checkout */
+/* Classic checkout: default WC template prints title as plain text (no .woocommerce-PaymentMethod-label-text). */
 .woocommerce-checkout #payment .payment_method_blikk_payment label,
 .woocommerce #payment .payment_method_blikk_payment label {
     display: flex;
@@ -68,9 +68,10 @@
     min-height: 44px;
     padding: 10px 0;
     line-height: 1.5;
+    font-size: 0;
+    color: transparent;
 }
 
-/* Hide the title text in classic checkout, show only logo */
 .woocommerce-checkout #payment .payment_method_blikk_payment label .woocommerce-PaymentMethod-label-text,
 .woocommerce #payment .payment_method_blikk_payment label .woocommerce-PaymentMethod-label-text {
     display: none;
@@ -82,7 +83,6 @@
     height: auto;
     width: auto;
     display: block;
-    margin-left: 16px;
     object-fit: contain;
     vertical-align: middle;
 }
@@ -113,13 +113,6 @@
     vertical-align: middle;
 }
 
-/* Better spacing for payment method container */
-.woocommerce-checkout #payment .payment_method_blikk_payment,
-.woocommerce #payment .payment_method_blikk_payment {
-    padding: 16px;
-    margin-bottom: 12px;
-}
-
 /* Mobile responsiveness */
 @media screen and (max-width: 768px) {
     .woocommerce-checkout #payment .payment_method_blikk_payment label,
@@ -131,7 +124,6 @@
     .woocommerce-checkout #payment .payment_method_blikk_payment img,
     .woocommerce #payment .payment_method_blikk_payment img {
         max-height: 24px;
-        margin-left: 12px;
     }
     
     .wc-block-components-payment-method-label {
@@ -142,12 +134,4 @@
     .wc-block-components-payment-method-label img {
         max-height: 24px;
     }
-    
-    /* Better spacing for payment method container on mobile */
-    .woocommerce-checkout #payment .payment_method_blikk_payment,
-    .woocommerce #payment .payment_method_blikk_payment {
-        padding: 16px 12px;
-        margin-bottom: 16px;
-    }
-    
 }
