@@ -59,6 +59,12 @@
     100% { transform: rotate(360deg); }
 }
 
+/* Hide title text, show logo only — font-size: 0 suppresses the text node */
+.woocommerce-checkout #payment .payment_method_blikk_payment label,
+.woocommerce #payment .payment_method_blikk_payment label {
+    font-size: 0;
+}
+
 /* Payment method logo sizing */
 .woocommerce-checkout #payment .payment_method_blikk_payment img,
 .woocommerce #payment .payment_method_blikk_payment img {
