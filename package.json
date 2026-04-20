@@ -14,7 +14,7 @@
   "author": "Blikk Software",
   "license": "GPL-2.0-or-later",
   "devDependencies": {
-    "@wordpress/scripts": "^26.0.0",
+    "@wordpress/scripts": "^31.3.0",
     "webpack": "^5.88.0",
     "webpack-cli": "^5.1.0"
   }
